@@ -21,9 +21,9 @@ window.onload = function () {
     }
   };
 
-  new agGrid.Grid(document.querySelector("#htcondor-jobs-table"), gridOptions);
+  new window.agGrid.Grid(document.querySelector("#htcondor-jobs-table"), gridOptions);
 
-  agGrid.simpleHttpRequest({url: "/jobs.json"}).then((data) => {
+  window.agGrid.simpleHttpRequest({url: "/jobs.json"}).then((data) => {
     console.log(data);
     gridOptions.api.setRowData(data.jobs);
   });
