@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from pathlib import Path
 from signal import SIGTERM, SIGINT
 
@@ -7,7 +8,7 @@ from tornado.web import Application, RequestHandler
 
 from .jobs import get_jobs
 
-HERE = Path(__file__).parent
+logger = logging.getLogger("__name__")
 
 
 class IndexHandler(RequestHandler):
@@ -22,10 +23,11 @@ class JobsHandler(RequestHandler):
 
 
 def make_app(debug: bool) -> Application:
+    here = Path(__file__).parent
     app = Application(
         [(r"/", IndexHandler), (r"/jobs.json", JobsHandler)],
-        static_path=str(HERE.joinpath("static")),
-        template_path=str(HERE.joinpath("static")),
+        static_path=str(here.joinpath("static")),
+        template_path=str(here.joinpath("static")),
         debug=debug,
     )
     return app
@@ -35,6 +37,10 @@ def main(port: int = 9100, debug: bool = False) -> None:
     app = make_app(debug=debug)
     app.listen(port)
     loop = asyncio.get_event_loop()
+
+    def shutdown():
+        logger.info("Shutting down...")
+        loop.stop
 
     for signal in (SIGTERM, SIGINT):
         loop.add_signal_handler(signal, loop.stop)

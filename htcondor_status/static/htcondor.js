@@ -23,8 +23,13 @@ window.onload = function () {
 
   new window.agGrid.Grid(document.querySelector("#htcondor-jobs-table"), gridOptions);
 
-  window.agGrid.simpleHttpRequest({url: "/jobs.json"}).then((data) => {
-    console.log(data);
-    gridOptions.api.setRowData(data.jobs);
-  });
+  const reloadData = () => {
+    window.agGrid.simpleHttpRequest({url: "/jobs.json"}).then((data) => {
+      console.log(data);
+      gridOptions.api.setRowData(data.jobs);
+    });
+  };
+
+  reloadData();
+  window.setInterval(reloadData, 5000);
 };
