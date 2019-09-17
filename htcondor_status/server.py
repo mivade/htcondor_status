@@ -50,4 +50,6 @@ def main(port: int = 9100, debug: bool = False) -> None:
 
 if __name__ == "__main__":
     enable_pretty_logging()
-    main(debug=True)
+    port = 9100
+    logger.info(f"Listening on port {port}")
+    main(port=port, debug=True)
