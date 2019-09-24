@@ -16,7 +16,6 @@ class HTCondorJobs {
    * @brief Reload data and update the table.
    */
   reloadData() {
-    console.debug("reloadData");
     fetch("jobs.json")
     .then((response) => { return response.json(); })
     .then((data) => {
