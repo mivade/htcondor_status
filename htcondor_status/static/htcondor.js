@@ -7,61 +7,21 @@ class HTCondorJobs {
   constructor(element, refreshInterval) {
     this.element = element;
     this.refreshInterval = refreshInterval;
-    this.table = null;
-    this.gridOptions = {
-      columnDefs: this.columnDefs,
-      onGridReady: (params) => {
-        params.api.sizeColumnsToFit();
-        window.addEventListener(
-          "resize", function () {
-            this.setTimeout(
-              function () {
-                params.api.sizeColumnsToFit();
-              }
-            )
-          }
-        )
-      }
-    };
-    this.initializeTable();
-  }
-
-  /**
-   * @brief Column names to display.
-   */
-  get columnNames() {
-    return [
-      "ClusterId", "Owner", "Cmd", "JobName", "JobStatus"
-    ];
-  }
-
-  /**
-   * Column definitions.
-   */
-  get columnDefs() {
-    return this.columnNames.map((name) => {
-      return {headerName: name, field: name, sortable: true, filter: true};
-    });
-  }
-
-  /**
-   * @brief Initialize the table.
-   */
-  initializeTable() {
-    if (this.table === null) {
-      this.table = new agGrid.Grid(document.querySelector(this.element), this.gridOptions);
-      this.reloadData();
-      window.setInterval(() => this.reloadData(), this.refreshInterval);
-    }
+    this.table = $(this.element);
+    this.reloadData();
+    this.timer = window.setInterval(() => this.reloadData(), refreshInterval);
   }
 
   /**
    * @brief Reload data and update the table.
    */
   reloadData() {
-    agGrid.simpleHttpRequest({url: "jobs.json"}).then((data) => {
+    console.debug("reloadData");
+    fetch("jobs.json")
+    .then((response) => { return response.json(); })
+    .then((data) => {
       console.debug(data);
-      this.table.gridOptions.api.setRowData(data.jobs);
+      this.table.bootstrapTable("load", data.jobs);
     });
   };
 }
