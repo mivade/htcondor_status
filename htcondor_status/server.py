@@ -34,8 +34,10 @@ def make_app(debug: bool) -> Application:
 
 
 def main(port: int = 9100, debug: bool = False) -> None:
+    enable_pretty_logging()
     app = make_app(debug=debug)
     app.listen(port)
+    logger.info(f"Listening on port {port}")
     loop = asyncio.get_event_loop()
 
     def shutdown():
@@ -49,7 +51,4 @@ def main(port: int = 9100, debug: bool = False) -> None:
 
 
 if __name__ == "__main__":
-    enable_pretty_logging()
-    port = 9100
-    logger.info(f"Listening on port {port}")
-    main(port=port, debug=True)
+    main(debug=True)
