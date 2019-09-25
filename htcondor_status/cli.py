@@ -49,7 +49,7 @@ def generate_json(*, file: Optional[str], indent: Optional[int]) -> None:
         print(json.dumps(data, indent=indent))
     else:
         with open(file, "w") as f:
-            json.dump(data, f, indent=indent)
+            json.dump({"jobs": data}, f, indent=indent)
 
 
 def make_static_parser(subparsers: _SubParsersAction) -> ArgumentParser:
