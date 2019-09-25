@@ -23,14 +23,8 @@
             <th
               data-field="QDate"
               data-sortable="true"
-              data-formatter="formatTimestamp">
+              data-formatter="formatQDate">
               Queued
-            </th>
-            <th
-              data-field="QDate"
-              data-sortable="true"
-              data-formatter="timestampToElapsed">
-              Elapsed
             </th>
             <th data-field="Owner" data-sortable="true">Owner</th>
             <th data-field="Cmd" data-sortable="true">Cmd</th>
@@ -38,7 +32,7 @@
             <th
               data-field="JobStatus"
               data-sortable="true"
-              data-formatter="getJobStatusString">
+              data-formatter="formatJobStatusString">
               JobStatus
             </th>
           </tr>
@@ -60,17 +54,12 @@
         7: "Suspended"
       };
 
-      function formatTimestamp(timestamp) {
-        const dt = new Date(timestamp * 1000);
-        return moment(dt).format();
+      function formatQDate(timestamp) {
+        const dt = moment(new Date(timestamp * 1000));
+        return `${dt.format()} (${dt.fromNow()})`;
       }
 
-      function timestampToElapsed(timestamp) {
-        const dt = new Date(timestamp * 1000);
-        return moment(dt).fromNow();
-      }
-
-      function getJobStatusString(status) {
+      function formatJobStatusString(status) {
         return statusMap[status];
       }
 
