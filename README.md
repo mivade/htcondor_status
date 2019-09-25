@@ -13,6 +13,18 @@ Run as a server:
 python -m htcondor_status serve --port 9100 --debug
 ```
 
+Print all jobs as JSON to `stdout`:
+
+```
+python -m htcondor_status json --indent 2
+```
+
+or to a file:
+
+```
+python -m htcondor_status json --indent 2 --file out.json
+```
+
 ## Credits
 
 The [Condor image][] was sourced from Wikipedia by user Colegota and licensed
