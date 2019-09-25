@@ -13,7 +13,7 @@ logger = logging.getLogger("__name__")
 
 class IndexHandler(RequestHandler):
     def get(self):
-        self.render("jobs.html")
+        self.render("index.html")
 
 
 class JobsHandler(RequestHandler):
