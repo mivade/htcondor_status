@@ -35,7 +35,12 @@
             <th data-field="Owner" data-sortable="true">Owner</th>
             <th data-field="Cmd" data-sortable="true">Cmd</th>
             <th data-field="JobName" data-sortable="true">JobName</th>
-            <th data-field="JobStatus" data-sortable="true">JobStatus</th>
+            <th
+              data-field="JobStatus"
+              data-sortable="true"
+              data-formatter="getJobStatusString">
+              JobStatus
+            </th>
           </tr>
         </thead>
       </table>
@@ -45,6 +50,16 @@
     <script src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
     <script src="https://momentjs.com/downloads/moment.min.js"></script>
     <script>
+      const statusMap = {
+        1: "Idle",
+        2: "Running",
+        3: "Removed",
+        4: "Completed",
+        5: "Held",
+        6: "Transferring Output",
+        7: "Suspended"
+      };
+
       function formatTimestamp(timestamp) {
         const dt = new Date(timestamp * 1000);
         return moment(dt).format();
@@ -53,6 +68,10 @@
       function timestampToElapsed(timestamp) {
         const dt = new Date(timestamp * 1000);
         return moment(dt).fromNow();
+      }
+
+      function getJobStatusString(status) {
+        return statusMap[status];
       }
 
       /**
