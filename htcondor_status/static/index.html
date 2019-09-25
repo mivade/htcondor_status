@@ -20,6 +20,18 @@
         <thead>
           <tr>
             <th data-field="ClusterId" data-sortable="true">ClusterId</th>
+            <th
+              data-field="QDate"
+              data-sortable="true"
+              data-formatter="formatTimestamp">
+              Queued
+            </th>
+            <th
+              data-field="QDate"
+              data-sortable="true"
+              data-formatter="timestampToElapsed">
+              Elapsed
+            </th>
             <th data-field="Owner" data-sortable="true">Owner</th>
             <th data-field="Cmd" data-sortable="true">Cmd</th>
             <th data-field="JobName" data-sortable="true">JobName</th>
@@ -31,7 +43,18 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/bootstrap-table@1.15.4/dist/bootstrap-table.min.js"></script>
+    <script src="https://momentjs.com/downloads/moment.min.js"></script>
     <script>
+      function formatTimestamp(timestamp) {
+        const dt = new Date(timestamp * 1000);
+        return moment(dt).format();
+      }
+
+      function timestampToElapsed(timestamp) {
+        const dt = new Date(timestamp * 1000);
+        return moment(dt).fromNow();
+      }
+
       /**
        * @brief Update and display HTCondor jobs in the queue.
        * @param element selector for the element to use for the table
