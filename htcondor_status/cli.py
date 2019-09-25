@@ -43,13 +43,13 @@ def generate_json(*, file: Optional[str], indent: Optional[int]) -> None:
     from htcondor_status.jobs import get_jobs
 
     loop = asyncio.get_event_loop()
-    data = loop.run_until_complete(get_jobs())
+    data = {"jobs": loop.run_until_complete(get_jobs())}
 
     if file is None:
         print(json.dumps(data, indent=indent))
     else:
         with open(file, "w") as f:
-            json.dump({"jobs": data}, f, indent=indent)
+            json.dump(data, f, indent=indent)
 
 
 def make_static_parser(subparsers: _SubParsersAction) -> ArgumentParser:
