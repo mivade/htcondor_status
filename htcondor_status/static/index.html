@@ -10,6 +10,34 @@
     <nav class="navbar navbar-dark bg-primary">
       <a class="navbar-brand" href="#">HTCondor Jobs</a>
     </nav>
+    <div class="container" style="padding-top: 1em;">
+      <div class="row">
+        <div class="col">
+          <div class="alert alert-primary" role="alert">
+            <h3 class="alert-heading">Jobs</h3>
+            <h3 class="alert-heading" id="total-job-count">-</h3>
+          </div>
+        </div>
+        <div class="col">
+          <div class="alert alert-success" role="alert">
+            <h3 class="alert-heading">Running</h3>
+            <h3 class="alert-heading" id="running-job-count">-</h3>
+          </div>
+        </div>
+        <div class="col">
+          <div class="alert alert-warning" role="alert">
+            <h3 class="alert-heading">Idle</h3>
+            <h3 class="alert-heading" id="idle-job-count">-</h3>
+          </div>
+        </div>
+        <div class="col">
+          <div class="alert alert-danger" role="alert">
+            <h3 class="alert-heading">Held</h3>
+            <h3 class="alert-heading" id="held-job-count">-</h3>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="container-fluid">
       <table
         id="htcondor-jobs-table"
@@ -78,6 +106,23 @@
         }
 
         /**
+          * @brief Get the number of jobs in a given state.
+          * @param jobs array of jobs
+          * @param state state string
+          */
+        getJobCount(jobs, state) {
+          const reducer = (total, entry) => {
+            if (statusMap[entry.JobStatus] == state) {
+              return total + 1;
+            }
+            else {
+              return total;
+            }
+          };
+          return jobs.reduce(reducer, 0);
+        }
+
+        /**
          * @brief Reload data and update the table.
          */
         reloadData() {
@@ -85,6 +130,11 @@
           .then((response) => { return response.json(); })
           .then((data) => {
             this.table.bootstrapTable("load", data.jobs);
+            const totalJobCount = data.jobs.length;
+            $("#total-job-count").text(totalJobCount);
+            $("#running-job-count").text(this.getJobCount(data.jobs, "Running"));
+            $("#idle-job-count").text(this.getJobCount(data.jobs, "Idle"));
+            $("#held-job-count").text(this.getJobCount(data.jobs, "Held"));
           });
         };
       }
