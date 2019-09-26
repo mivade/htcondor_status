@@ -68,7 +68,7 @@ def write_static_files(*, directory: str) -> None:
     path = Path(directory)
     path.mkdir(parents=True, exist_ok=True)
 
-    for resource in ("condor.jpg", "favicon.ico", "index.html"):
+    for resource in ("condor.jpg", "condor.png", "favicon.ico", "index.html"):
         data = pkgutil.get_data("htcondor_status.static", resource)
         filepath = path.joinpath(resource)
         print(f"Writing {filepath}")
