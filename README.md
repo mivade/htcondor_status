@@ -1,6 +1,6 @@
 # htcondor_status
 
-Display running [HTCondor][] jobs as an HTML page.
+Monitor [HTCondor][] clusters in your browser.
 
 [HTCondor]: https://research.cs.wisc.edu/htcondor/
 
@@ -24,6 +24,16 @@ or to a file:
 ```
 python -m htcondor_status json --indent 2 --file out.json
 ```
+
+Write static files to a directory:
+
+```
+python -m htcondor_status static /path/to/directory
+```
+
+## License
+
+[MIT](LICENSE)
 
 ## Credits
 
