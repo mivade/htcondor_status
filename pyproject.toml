@@ -1,0 +1,10 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "htcondor_status"
+author = "Michael V. DePalatis"
+author-email = "mike@depalatis.net"
+home-page = "https://github.com/mivade/htcondor_status"
+classifiers = ["License :: OSI Approved :: MIT License"]
