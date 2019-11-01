@@ -47,6 +47,7 @@
         data-pagination="true"
         data-sortable="true"
         data-search="true"
+        data-row-attributes="setRowAttributes"
         data-key-events="true">
         <thead>
           <tr>
@@ -70,6 +71,29 @@
         </thead>
       </table>
     </div>
+
+    <div
+      class="modal fade"
+      id="details-modal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="detailsModal"
+      aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="details-title">Details</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="details-body">
+            Details here...
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
@@ -96,6 +120,14 @@
         return statusMap[status];
       }
 
+      function setRowAttributes(row, index) {
+        return {
+          "onclick": `window.jobs.showDetails(${index})`,
+          "data-toggle": "modal",
+          "data-target": "#details-modal"
+        };
+      }
+
       /**
        * @brief Update and display HTCondor jobs in the queue.
        * @param element selector for the element to use for the table
@@ -106,6 +138,7 @@
           this.element = element;
           this.refreshInterval = refreshInterval;
           this.table = $(this.element);
+          this.data = [];
           this.reloadData();
           this.timer = window.setInterval(() => this.reloadData(), refreshInterval);
         }
@@ -140,8 +173,34 @@
             $("#running-job-count").text(this.getJobCount(data.jobs, "Running"));
             $("#idle-job-count").text(this.getJobCount(data.jobs, "Idle"));
             $("#held-job-count").text(this.getJobCount(data.jobs, "Held"));
+            this.data = data.jobs;
           });
-        };
+        }
+
+        /**
+         * @brief Format details for a row.
+         * @param row the row to format
+         */
+        formatDetails(row) {
+          let html = "";
+          for (let key in row) {
+            html += `<b>${key}</b>: ${row[key]}</b><br>`;
+          }
+          return `<p>${html}</p>`;
+        }
+
+        /**
+         * @brief Show the details modal.
+         * @param index Data row index
+         */
+        showDetails(index) {
+          const data = this.data[index];
+          let titleElement = document.querySelector("#details-title");
+          let bodyElement = document.querySelector("#details-body");
+          titleElement.innerHTML = `Details for ClusterId ${data.ClusterId}`;
+          bodyElement.innerHTML = this.formatDetails(data);
+          console.log(this.data[index]);
+        }
       }
 
       window.onload = function () {
