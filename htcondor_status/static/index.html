@@ -47,6 +47,10 @@
         data-pagination="true"
         data-sortable="true"
         data-search="true"
+        data-detail-view="true"
+        data-detail-view-icon="false"
+        data-detail-view-by-click="true"
+        data-detail-formatter="formatDetails"
         data-key-events="true">
         <thead>
           <tr>
@@ -94,6 +98,17 @@
 
       function formatJobStatusString(status) {
         return statusMap[status];
+      }
+
+      function formatDetails(index, row) {
+        console.log(row);
+        let html = [];
+
+        for (let key in row) {
+          html.push(`<p><b>${key}</b>: ${row[key]}</p>`);
+        }
+
+        return html;
       }
 
       /**
