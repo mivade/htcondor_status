@@ -11,3 +11,8 @@ dynamic = ["version", "description"]
 
 [project.urls]
 Source = "https://github.com/mivade/htcondor_status"
+
+[project.optional-dependencies]
+server = [
+    "tornado>=6.1",
+]
