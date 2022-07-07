@@ -9,7 +9,7 @@ from . import server
 
 class HandlerTestCase(AsyncHTTPTestCase):
     def get_app(self) -> Application:
-        return server.make_app(debug=False)
+        return server.HTCondorStatusApp(debug=False)
 
 
 class TestIndexHandler(HandlerTestCase):

@@ -1,7 +1,10 @@
 import asyncio
+from datetime import timedelta
 import logging
 from pathlib import Path
+from typing import Any
 
+from tornado.ioloop import PeriodicCallback
 from tornado.log import enable_pretty_logging
 from tornado.web import Application, RequestHandler
 
@@ -20,34 +23,43 @@ class JobsHandler(RequestHandler):
     def initialize(self, simulate: bool) -> None:
         self.simulate = simulate
 
-    async def get(self) -> None:
+    def get(self) -> None:
         """Get the most recent list of HTCondor jobs."""
+        self.write({"jobs": self.application.jobs})
+
+
+class HTCondorStatusApp(Application):
+    def __init__(
+        self,
+        *,
+        debug: bool = False,
+        simulate: bool = False,
+        refresh_interval_seconds: int = 30,
+    ) -> None:
+        here = Path(__file__).parent
+        super().__init__(
+            [
+                (r"/", IndexHandler, {}, "index.html"),
+                (r"/jobs.json", JobsHandler, {"simulate": simulate}, "jobs.json"),
+            ],
+            static_path=str(here.joinpath("static")),
+            template_path=str(here.joinpath("static")),
+            debug=debug,
+        )
+        self.simulate = simulate
+        self.jobs: list[dict[str, Any]] = []
+        self._refresh_timer = PeriodicCallback(
+            self.refresh_jobs_list, timedelta(seconds=refresh_interval_seconds)
+        )
+        self._refresh_timer.start()
+
+    async def refresh_jobs_list(self) -> None:
+        logger.debug("Refreshing jobs list")
+
         if self.simulate:
-            jobs = simulate_jobs()
+            self.jobs = simulate_jobs()
         else:
-            jobs = await get_jobs()
-
-        self.write({"jobs": jobs})
-
-
-def make_app(*, debug: bool = False, simulate: bool = False) -> Application:
-    """Make the Tornado web application.
-
-    :param debug: enable debug mode
-    :param simulate: simulate calls to ``condor_q``
-
-    """
-    here = Path(__file__).parent
-    app = Application(
-        [
-            (r"/", IndexHandler, {}, "index.html"),
-            (r"/jobs.json", JobsHandler, {"simulate": simulate}, "jobs.json"),
-        ],
-        static_path=str(here.joinpath("static")),
-        template_path=str(here.joinpath("static")),
-        debug=debug,
-    )
-    return app
+            self.jobs = await get_jobs()
 
 
 async def main(
@@ -60,8 +72,12 @@ async def main(
     :param simulate: simulate calls to ``condor_q``
 
     """
+    if debug:
+        logger.setLevel(logging.DEBUG)
+
     enable_pretty_logging()
-    app = make_app(debug=debug, simulate=simulate)
+    app = HTCondorStatusApp(debug=debug, simulate=simulate)
     app.listen(port)
     logger.info(f"Listening on port {port}")
+    await app.refresh_jobs_list()
     await asyncio.Event().wait()
