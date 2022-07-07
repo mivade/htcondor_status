@@ -1,8 +1,6 @@
 {
   "name": "htcondor-status",
-  "version": "0.1.0",
   "description": "Simple HTCondor status page",
-  "main": "index.js",
   "scripts": {
     "test": "jest",
     "watch": "parcel src/index.html"

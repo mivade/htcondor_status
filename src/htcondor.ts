@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import { Tabulator } from "tabulator-tables";
+import { Tabulator, AjaxModule } from "tabulator-tables";
 
 const statusMap = {
   1: "Idle",
@@ -30,14 +30,29 @@ export function formatJobStatusString(status: number): string {
 }
 
 export function initialize() {
+  // Tabulator.bindModules([new AjaxModule()]);
+  Tabulator.registerModule(AjaxModule);
   var table = new Tabulator("#table-jobs", {
     columns: [
-      {title: "ClusterId"},
-      {title: "Queued"},
-      {title: "Owner"},
-      {title: "Cmd"},
-      {title: "JobName"},
-      {title: "JobStatus"},
-    ]
+      {title: "ClusterId", field: "ClusterId"},
+      {title: "Queued", field: "QDate"},
+      {title: "Owner", field: "Owner"},
+      {title: "Cmd", field: "Cmd"},
+      {title: "JobName", field: "JobName"},
+      {title: "JobStatus", field: "JobStatus"},
+    ],
+    initialSort: [{column: "Queued", dir: "desc"}],
+    ajaxURL: "/summary.json",
+    ajaxResponse: function (url, params, response) {
+      let data = response.jobs;
+      data.forEach((row) => {
+        row.QDate = formatQDate(row.QDate);
+        row.JobStatus = formatJobStatusString(row.JobStatus);
+      });
+      console.debug(data);
+      return data;
+    }
   });
+
+  window.setInterval(() => table.setData("/summary.json"), 10000);
 }
