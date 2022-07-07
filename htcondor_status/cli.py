@@ -1,4 +1,5 @@
 from argparse import ArgumentParser, _SubParsersAction
+import asyncio
 from typing import Optional
 
 
@@ -6,7 +7,7 @@ def make_serve_parser(subparsers: _SubParsersAction) -> ArgumentParser:
     """Make the ``serve`` subcommand."""
     parser = subparsers.add_parser("serve")
     parser.set_defaults(command=serve)
-    parser.add_argument("--port", "-p", default=9100, help="port to listen on")
+    parser.add_argument("--port", "-p", default=8500, help="port to listen on")
     parser.add_argument("--debug", "-d", action="store_true", help="enable debug mode")
     return parser
 
@@ -20,7 +21,10 @@ def serve(*, port: int, debug: bool) -> None:
     """
     from htcondor_status.server import main
 
-    main(port, debug)
+    try:
+        asyncio.run(main(port, debug))
+    except KeyboardInterrupt:
+        pass
 
 
 def make_json_parser(subparsers: _SubParsersAction) -> ArgumentParser:

@@ -10,7 +10,7 @@ Monitor [HTCondor][] clusters in your browser.
 Run as a server:
 
 ```
-python -m htcondor_status serve --port 9100 --debug
+python -m htcondor_status serve --port 8500 --debug
 ```
 
 Print all jobs as JSON to `stdout`:

@@ -1,7 +1,6 @@
 import asyncio
 import logging
 from pathlib import Path
-from signal import SIGTERM, SIGINT
 
 from tornado.log import enable_pretty_logging
 from tornado.web import Application, RequestHandler
@@ -33,22 +32,13 @@ def make_app(debug: bool) -> Application:
     return app
 
 
-def main(port: int = 9100, debug: bool = False) -> None:
+async def main(port: int = 9100, debug: bool = False) -> None:
     enable_pretty_logging()
     app = make_app(debug=debug)
     app.listen(port)
     logger.info(f"Listening on port {port}")
-    loop = asyncio.get_event_loop()
-
-    def shutdown():
-        logger.info("Shutting down...")
-        loop.stop
-
-    for signal in (SIGTERM, SIGINT):
-        loop.add_signal_handler(signal, loop.stop)
-
-    loop.run_forever()
+    await asyncio.Event().wait()
 
 
 if __name__ == "__main__":
-    main(debug=True)
+    asyncio.run(main(debug=True))
