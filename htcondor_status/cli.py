@@ -9,20 +9,24 @@ def make_serve_parser(subparsers: _SubParsersAction) -> ArgumentParser:
     parser.set_defaults(command=serve)
     parser.add_argument("--port", "-p", default=8500, help="port to listen on")
     parser.add_argument("--debug", "-d", action="store_true", help="enable debug mode")
+    parser.add_argument(
+        "--simulate", "-s", action="store_true", help="simulate calls to condor_q"
+    )
     return parser
 
 
-def serve(*, port: int, debug: bool) -> None:
+def serve(*, port: int, debug: bool, simulate: bool) -> None:
     """Run the server.
 
     :param port: port to serve on
     :param debug: when True, enable debug mode
+    :param simulate: simulate ``condor_q`` calls
 
     """
     from htcondor_status.server import main
 
     try:
-        asyncio.run(main(port=port, debug=debug))
+        asyncio.run(main(port=port, debug=debug, simulate=simulate))
     except KeyboardInterrupt:
         pass
 
