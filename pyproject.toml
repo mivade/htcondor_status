@@ -14,5 +14,8 @@ Source = "https://github.com/mivade/htcondor_status"
 
 [project.optional-dependencies]
 server = [
-    "tornado>=6.1",
+    "tornado>=6.2",
+]
+dev = [
+    "pytest",
 ]

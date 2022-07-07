@@ -11,20 +11,30 @@ logger = logging.getLogger("__name__")
 
 
 class IndexHandler(RequestHandler):
-    def get(self):
+    def get(self) -> None:
+        """Get ``index.html``."""
         self.render("index.html")
 
 
 class JobsHandler(RequestHandler):
-    async def get(self):
+    async def get(self) -> None:
+        """Get the most recent list of HTCondor jobs."""
         jobs = await get_jobs()
         self.write({"jobs": jobs})
 
 
 def make_app(debug: bool) -> Application:
+    """Make the Tornado web application.
+
+    :param debug: enable debug mode
+
+    """
     here = Path(__file__).parent
     app = Application(
-        [(r"/", IndexHandler), (r"/jobs.json", JobsHandler)],
+        [
+            (r"/", IndexHandler, {}, "index.html"),
+            (r"/jobs.json", JobsHandler, {}, "jobs.json"),
+        ],
         static_path=str(here.joinpath("static")),
         template_path=str(here.joinpath("static")),
         debug=debug,
@@ -32,13 +42,15 @@ def make_app(debug: bool) -> Application:
     return app
 
 
-async def main(port: int = 9100, debug: bool = False) -> None:
+async def main(*, port: int = 9100, debug: bool = False) -> None:
+    """Main entry point.
+
+    :param port: port to serve on (default: 9100)
+    :param debug: enable debug mode
+
+    """
     enable_pretty_logging()
     app = make_app(debug=debug)
     app.listen(port)
     logger.info(f"Listening on port {port}")
     await asyncio.Event().wait()
-
-
-if __name__ == "__main__":
-    asyncio.run(main(debug=True))

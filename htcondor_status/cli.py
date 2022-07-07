@@ -22,7 +22,7 @@ def serve(*, port: int, debug: bool) -> None:
     from htcondor_status.server import main
 
     try:
-        asyncio.run(main(port, debug))
+        asyncio.run(main(port=port, debug=debug))
     except KeyboardInterrupt:
         pass
 
