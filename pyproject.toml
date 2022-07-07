@@ -8,6 +8,7 @@ authors = [{name = "Michael V. DePalatis"}]
 readme = "README.md"
 classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
+requires = ["pandas"]
 
 [project.urls]
 Source = "https://github.com/mivade/htcondor_status"
