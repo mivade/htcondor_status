@@ -44,6 +44,7 @@ export function initialize() {
       {title: "JobStatus", field: "JobStatus"},
     ],
     initialSort: [{column: "Queued", dir: "desc"}],
+    layout: "fitDataFill",
     ajaxURL: "/summary.json",
     ajaxResponse: function (url, params, response) {
       let data = response.jobs;
