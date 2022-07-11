@@ -29,6 +29,59 @@ export function formatJobStatusString(status: number): string {
   return statusMap[status];
 }
 
+/**
+ * Update the dashboard displaying the counts of jobs in different statuses
+ * @param jobStatuses
+ */
+function updateJobCounts(jobStatuses: Array<string>) {
+  const counts = {
+    "total-job-count": jobStatuses.length,
+    "running-job-count": getJobCount(jobStatuses, "Running"),
+    "idle-job-count": getJobCount(jobStatuses, "Idle"),
+    "held-job-count": getJobCount(jobStatuses, "Held"),
+  };
+
+  for (let key in counts) {
+    setText(key, counts[key].toString());
+  }
+}
+
+/**
+ * @brief Get the count of jobs with a given status
+ * @param jobStatuses
+ * @param status Status string to search for
+ * @returns
+ */
+function getJobCount(jobStatuses: Array<string>, status: string): number {
+  let count = 0;
+
+  for (let item of jobStatuses) {
+    if (item == status) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+/**
+ * @brief Set the text of an HTML element
+ * @param id HTML element ID
+ * @param text Text to set
+ */
+function setText(id: string, text: string) {
+  let element = document.getElementById(id);
+
+  if (element != null) {
+    element.innerHTML = text;
+  }
+  else {
+    console.error(`Unable to locate element ${id}`);
+  }
+}
+
+/**
+ * @brief Start polling for updates
+ */
 export function initialize() {
   for (const module of [AjaxModule, SortModule]) {
     Tabulator.registerModule(module);
@@ -43,19 +96,23 @@ export function initialize() {
       {title: "JobName", field: "JobName"},
       {title: "JobStatus", field: "JobStatus"},
     ],
-    initialSort: [{column: "Queued", dir: "desc"}],
+    initialSort: [{column: "QDate", dir: "desc"}],
     layout: "fitDataFill",
     ajaxURL: "/summary.json",
     ajaxResponse: function (url, params, response) {
       let data = response.jobs;
+      let jobStatuses: Array<string> = [];
       data.forEach((row) => {
         row.QDate = formatQDate(row.QDate);
         row.JobStatus = formatJobStatusString(row.JobStatus);
+        jobStatuses.push(row.JobStatus);
       });
+      updateJobCounts(jobStatuses);
       console.debug(data);
       return data;
     }
   });
 
+  // Periodically refresh data
   window.setInterval(() => table.setData("/summary.json"), 10000);
 }
