@@ -1,5 +1,6 @@
 import { DateTime } from "luxon";
-import { Tabulator, AjaxModule, SortModule } from "tabulator-tables";
+import { Tabulator, AjaxModule, SortModule, InteractionModule } from "tabulator-tables";
+import { Modal } from "bootstrap";
 
 const statusMap = {
   1: "Idle",
@@ -79,11 +80,23 @@ function setText(id: string, text: string) {
   }
 }
 
+interface SummaryData {
+  GlobalJobId: string,
+  ClusterId: string,
+  QDate: string,
+  Owner: string,
+  Cmd: string,
+  JobName: string,
+  JobStatus: number,
+};
+
+let summaryData: Array<SummaryData> = [];
+
 /**
  * @brief Start polling for updates
  */
 export function initialize() {
-  for (const module of [AjaxModule, SortModule]) {
+  for (const module of [AjaxModule, SortModule, InteractionModule]) {
     Tabulator.registerModule(module);
   }
 
@@ -101,6 +114,7 @@ export function initialize() {
     ajaxURL: "/summary.json",
     ajaxResponse: function (url, params, response) {
       let data = response.jobs;
+      summaryData = data;
       let jobStatuses: Array<string> = [];
       data.forEach((row) => {
         row.QDate = formatQDate(row.QDate);
@@ -113,6 +127,43 @@ export function initialize() {
     }
   });
 
+  table.on("rowClick", function (event, row) {
+    const summary = summaryData[row.getPosition()];
+    showDetails(summary);
+  });
+
   // Periodically refresh data
   window.setInterval(() => table.setData("/summary.json"), 10000);
+}
+
+/**
+ * @brief Fetch details and show the details modal
+ * @param summary Summary for a specific job
+ */
+async function showDetails(summary: SummaryData) {
+  const response = await fetch("/jobs.json");
+  const data = await response.json();
+  const jobs = data.jobs;
+
+  for (const job of jobs) {
+    if (job.GlobalJobId == summary.GlobalJobId) {
+      showModal(job);
+      return;
+    }
+  }
+
+  console.error(`Couldn't find job ${summary.GlobalJobId}`);
+}
+
+function showModal(jobDetails) {
+  let lines: Array<string> = [];
+
+  for (const key in jobDetails) {
+    const value = jobDetails[key];
+    lines.push(`<p><strong>${key}:</strong> ${value}</p>`);
+  }
+
+  setText("details-body", lines.join(""));
+  const modal = new Modal("#details-modal", {keyboard: true});
+  modal.show();
 }

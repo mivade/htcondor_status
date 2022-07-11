@@ -8,6 +8,7 @@
   "author": "Michael V. DePalatis",
   "license": "MIT",
   "devDependencies": {
+    "@types/bootstrap": "^5.1.12",
     "@types/jest": "^28.1.4",
     "@types/luxon": "^2.3.2",
     "@types/tabulator-tables": "^5.1.4",
