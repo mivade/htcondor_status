@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import { Tabulator, AjaxModule } from "tabulator-tables";
+import { Tabulator, AjaxModule, SortModule } from "tabulator-tables";
 
 const statusMap = {
   1: "Idle",
@@ -30,8 +30,10 @@ export function formatJobStatusString(status: number): string {
 }
 
 export function initialize() {
-  // Tabulator.bindModules([new AjaxModule()]);
-  Tabulator.registerModule(AjaxModule);
+  for (const module of [AjaxModule, SortModule]) {
+    Tabulator.registerModule(module);
+  }
+
   var table = new Tabulator("#table-jobs", {
     columns: [
       {title: "ClusterId", field: "ClusterId"},
