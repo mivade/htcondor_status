@@ -49,6 +49,7 @@ class JobSummaryHandler(RequestHandler):
             {
                 "jobs": jobs[
                     [
+                        "GlobalJobId",
                         "ClusterId",
                         "QDate",
                         "Owner",
