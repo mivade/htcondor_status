@@ -109,8 +109,9 @@ export function initialize() {
       {title: "JobName", field: "JobName"},
       {title: "JobStatus", field: "JobStatus"},
     ],
-    initialSort: [{column: "QDate", dir: "desc"}],
-    layout: "fitDataFill",
+    initialSort: [{column: "QDate", dir: "desc"}, {column: "ClusterId", dir: "desc"}],
+    layout: "fitColumns",
+    layoutColumnsOnNewData: true,
     ajaxURL: "/summary.json",
     ajaxResponse: function (url, params, response) {
       let data = response.jobs;
