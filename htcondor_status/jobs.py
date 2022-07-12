@@ -1,5 +1,4 @@
 import asyncio
-import functools
 import importlib.resources
 import json
 import random
@@ -31,7 +30,6 @@ async def get_jobs(all: bool = True, global_: bool = True) -> list[dict[str, Any
         return []
 
 
-@functools.cache
 def _read_sample_data() -> list[dict[str, Any]]:
     data = importlib.resources.read_text(
         "htcondor_status", "sample_condor_q_output.json"
@@ -43,7 +41,7 @@ def simulate_jobs() -> list[dict[str, Any]]:
     """Simulate getting jobs from ``condor_q``."""
     data = _read_sample_data()
     total = len(data)
-    return random.choices(data, k=random.randint(1, total - 1))
+    return random.sample(data, k=random.randint(1, total - 1))
 
 
 if __name__ == "__main__":
