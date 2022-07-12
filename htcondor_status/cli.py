@@ -1,6 +1,11 @@
 from argparse import ArgumentParser, _SubParsersAction
 import asyncio
+import json
+from pathlib import Path
+import pkgutil
 from typing import Optional
+
+from htcondor_status import jobs, server
 
 
 def make_serve_parser(subparsers: _SubParsersAction) -> ArgumentParser:
@@ -23,10 +28,8 @@ def serve(*, port: int, debug: bool, simulate: bool) -> None:
     :param simulate: simulate ``condor_q`` calls
 
     """
-    from htcondor_status.server import main
-
     try:
-        asyncio.run(main(port=port, debug=debug, simulate=simulate))
+        asyncio.run(server.main(port=port, debug=debug, simulate=simulate))
     except KeyboardInterrupt:
         pass
 
@@ -46,12 +49,7 @@ def generate_json(*, file: Optional[str], indent: Optional[int]) -> None:
     :param file: where to write the JSON file to (stdout if not None)
 
     """
-    import asyncio
-    import json
-    from htcondor_status.jobs import get_jobs
-
-    loop = asyncio.get_event_loop()
-    data = {"jobs": loop.run_until_complete(get_jobs())}
+    data = {"jobs": asyncio.run(jobs.get_jobs())}
 
     if file is None:
         print(json.dumps(data, indent=indent))
@@ -70,9 +68,6 @@ def make_static_parser(subparsers: _SubParsersAction) -> ArgumentParser:
 
 def write_static_files(*, directory: str) -> None:
     """Write the static files to the given directory."""
-    from pathlib import Path
-    import pkgutil
-
     path = Path(directory)
     path.mkdir(parents=True, exist_ok=True)
 
