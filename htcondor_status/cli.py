@@ -5,6 +5,8 @@ from pathlib import Path
 import pkgutil
 from typing import Optional
 
+from nodejs import npm
+
 from htcondor_status import jobs, server
 
 
@@ -28,10 +30,16 @@ def serve(*, port: int, debug: bool, simulate: bool) -> None:
     :param simulate: simulate ``condor_q`` calls
 
     """
+    if debug:
+        npm_run = npm.Popen(["run", "watch"])
+    else:
+        npm_run = None
+
     try:
         asyncio.run(server.main(port=port, debug=debug, simulate=simulate))
     except KeyboardInterrupt:
-        pass
+        if npm_run is not None:
+            npm_run.terminate()
 
 
 def make_json_parser(subparsers: _SubParsersAction) -> ArgumentParser:
