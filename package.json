@@ -3,7 +3,8 @@
   "description": "Simple HTCondor status page",
   "scripts": {
     "test": "jest",
-    "watch": "parcel src/index.html"
+    "watch": "parcel src/index.html",
+    "build": "parcel build --dist-dir=htcondor_status/static src/index.html"
   },
   "author": "Michael V. DePalatis",
   "license": "MIT",

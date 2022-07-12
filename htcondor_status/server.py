@@ -8,7 +8,7 @@ import pandas as pd
 
 from tornado.ioloop import PeriodicCallback
 from tornado.log import enable_pretty_logging
-from tornado.web import Application, RequestHandler
+from tornado.web import Application, RequestHandler, StaticFileHandler
 
 from .jobs import get_jobs, simulate_jobs
 
@@ -72,15 +72,16 @@ class HTCondorStatusApp(Application):
         refresh_interval_seconds: int = 30,
     ) -> None:
         here = Path(__file__).parent
+        static_path = f"{here}/static"
         super().__init__(
             [
                 ("/", IndexHandler, {}, "index.html"),
                 ("/jobs.json", JobsHandler, {}, "jobs.json"),
                 ("/counts.json", JobCountHandler, {}, "counts.json"),
                 ("/summary.json", JobSummaryHandler, {}, "summary.json"),
+                ("/(.*)", StaticFileHandler, {"path": static_path}),
             ],
-            static_path=str(here.joinpath("static")),
-            template_path=str(here.joinpath("static")),
+            template_path=static_path,
             debug=debug,
         )
         self.simulate = simulate
