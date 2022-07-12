@@ -1,3 +1,6 @@
+# Built web assets
+htcondor_status/static/
+
 .DS_Store
 .vscode/
 
