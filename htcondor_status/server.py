@@ -48,10 +48,10 @@ class JobCountHandler(BaseHandler):
         )
 
 
-class JobSummaryHandler(RequestHandler):
+class JobSummaryHandler(BaseHandler):
     def get(self) -> None:
         """Get data needed only to render a table with job summary info."""
-        jobs = pd.DataFrame(self.application.jobs)
+        jobs = pd.DataFrame(self.jobs)
         self.write(
             {
                 "jobs": jobs[
