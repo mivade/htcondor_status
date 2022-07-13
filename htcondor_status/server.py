@@ -51,21 +51,24 @@ class JobCountHandler(BaseHandler):
 class JobSummaryHandler(BaseHandler):
     def get(self) -> None:
         """Get data needed only to render a table with job summary info."""
-        jobs = pd.DataFrame(self.jobs)
-        self.write(
-            {
-                "jobs": jobs[
-                    [
-                        "GlobalJobId",
-                        "ClusterId",
-                        "QDate",
-                        "Owner",
-                        "Cmd",
-                        "JobStatus",
-                    ]  # FIXME: JobName
-                ].to_dict(orient="records")
-            }
-        )
+        if self.jobs:
+            jobs = pd.DataFrame(self.jobs)
+            self.write(
+                {
+                    "jobs": jobs[
+                        [
+                            "GlobalJobId",
+                            "ClusterId",
+                            "QDate",
+                            "Owner",
+                            "Cmd",
+                            "JobStatus",
+                        ]  # FIXME: JobName
+                    ].to_dict(orient="records")
+                }
+            )
+        else:
+            return {"jobs": []}
 
 
 class HTCondorStatusApp(Application):
