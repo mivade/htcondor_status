@@ -37,15 +37,18 @@ class JobsHandler(BaseHandler):
 class JobCountHandler(BaseHandler):
     def get(self) -> None:
         """Get counts of jobs in different states."""
-        jobs = pd.DataFrame(self.jobs)
-        self.write(
-            {
-                "total": len(jobs),
-                "idle": len(jobs[jobs.JobStatus == 1]),
-                "running": len(jobs[jobs.JobStatus == 2]),
-                "held": len(jobs[jobs.JobStatus == 5]),
-            }
-        )
+        if self.jobs:
+            jobs = pd.DataFrame(self.jobs)
+            self.write(
+                {
+                    "total": len(jobs),
+                    "idle": len(jobs[jobs.JobStatus == 1]),
+                    "running": len(jobs[jobs.JobStatus == 2]),
+                    "held": len(jobs[jobs.JobStatus == 5]),
+                }
+            )
+        else:
+            self.write({"total": 0, "idle": 0, "running": 0, "held": 0})
 
 
 class JobSummaryHandler(BaseHandler):
@@ -53,6 +56,10 @@ class JobSummaryHandler(BaseHandler):
         """Get data needed only to render a table with job summary info."""
         if self.jobs:
             jobs = pd.DataFrame(self.jobs)
+
+            if "JobName" not in jobs.columns:
+                jobs["JobName"] = None
+
             self.write(
                 {
                     "jobs": jobs[
@@ -63,7 +70,8 @@ class JobSummaryHandler(BaseHandler):
                             "Owner",
                             "Cmd",
                             "JobStatus",
-                        ]  # FIXME: JobName
+                            "JobName",
+                        ]
                     ].to_dict(orient="records")
                 }
             )
