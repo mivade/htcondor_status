@@ -9,7 +9,7 @@ Monitor [HTCondor][] clusters in your browser.
 Create a conda environment:
 
 ```
-conda env install -f environment.yml
+conda env create -f environment.yml
 conda activate htcondor-status
 ```
 
