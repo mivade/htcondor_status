@@ -71,9 +71,11 @@ async def generate_json(*, directory: Optional[str]) -> None:
         os.mkdir(output_directory)
 
     sock, port = bind_unused_port()
-    http_server = HTTPServer(server.HTCondorStatusApp())
+    app = server.HTCondorStatusApp()
+    http_server = HTTPServer(app)
     http_server.add_socket(sock)
     client = AsyncHTTPClient()
+    await app.refresh_jobs_list()
 
     for filename in ["jobs.json", "counts.json", "summary.json"]:
         response = await client.fetch(
