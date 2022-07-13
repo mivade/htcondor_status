@@ -4,25 +4,39 @@ Monitor [HTCondor][] clusters in your browser.
 
 [HTCondor]: https://research.cs.wisc.edu/htcondor/
 
+## Installation
+
+Create a conda environment:
+
+```
+conda env create -f environment.yml
+conda activate htcondor-status
+```
+
+Install NPM dependencies:
+
+```
+(env) npm install
+```
+
+Generate the HTML, Javascript, and CSS:
+
+```
+(env) npm run build
+```
 
 ## Usage
 
 Run as a server:
 
 ```
-python -m htcondor_status serve --port 9100 --debug
+python -m htcondor_status serve --port 8500 --debug
 ```
 
-Print all jobs as JSON to `stdout`:
+Write JSON files to be served by Apache, nginx, etc.:
 
 ```
-python -m htcondor_status json --indent 2
-```
-
-or to a file:
-
-```
-python -m htcondor_status json --indent 2 --file out.json
+python -m htcondor_status json /path/to/directory
 ```
 
 Write static files to a directory:

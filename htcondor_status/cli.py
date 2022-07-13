@@ -1,55 +1,86 @@
 from argparse import ArgumentParser, _SubParsersAction
+import asyncio
+import os
+from pathlib import Path
+import shutil
+import subprocess
 from typing import Optional
+
+from tornado.httpclient import AsyncHTTPClient
+from tornado.httpserver import HTTPServer
+from tornado.testing import bind_unused_port
+
+from htcondor_status import server
 
 
 def make_serve_parser(subparsers: _SubParsersAction) -> ArgumentParser:
     """Make the ``serve`` subcommand."""
     parser = subparsers.add_parser("serve")
     parser.set_defaults(command=serve)
-    parser.add_argument("--port", "-p", default=9100, help="port to listen on")
+    parser.add_argument("--port", "-p", default=8500, help="port to listen on")
     parser.add_argument("--debug", "-d", action="store_true", help="enable debug mode")
+    parser.add_argument(
+        "--simulate", "-s", action="store_true", help="simulate calls to condor_q"
+    )
     return parser
 
 
-def serve(*, port: int, debug: bool) -> None:
+def serve(*, port: int, debug: bool, simulate: bool) -> None:
     """Run the server.
 
     :param port: port to serve on
     :param debug: when True, enable debug mode
+    :param simulate: simulate ``condor_q`` calls
 
     """
-    from htcondor_status.server import main
+    if debug:
+        npm_run = subprocess.Popen(["run", "watch"])
+    else:
+        npm_run = None
 
-    main(port, debug)
+    try:
+        asyncio.run(server.main(port=port, debug=debug, simulate=simulate))
+    except KeyboardInterrupt:
+        if npm_run is not None:
+            npm_run.terminate()
 
 
 def make_json_parser(subparsers: _SubParsersAction) -> ArgumentParser:
     """Make the ``json`` subcommand."""
     parser = subparsers.add_parser("json")
-    parser.set_defaults(command=generate_json)
-    parser.add_argument("--indent", "-i", type=int, help="indent spaces")
-    parser.add_argument("--file", "-f", type=str, help="where to write the output")
+    parser.set_defaults(
+        command=lambda *args, **kwargs: asyncio.run(generate_json(*args, **kwargs))
+    )
+    parser.add_argument(
+        "directory", type=str, default=None, help="directory to write JSON files to"
+    )
     return parser
 
 
-def generate_json(*, file: Optional[str], indent: Optional[int]) -> None:
-    """Generate a JSON file with job status.
+async def generate_json(*, directory: Optional[str]) -> None:
+    """Generate JSON files with job status information.
 
-    :param file: where to write the JSON file to (stdout if not None)
+    :param directory: directory to write the JSON files to (default: CWD)
 
     """
-    import asyncio
-    import json
-    from htcondor_status.jobs import get_jobs
+    output_directory = directory or os.getcwd()
 
-    loop = asyncio.get_event_loop()
-    data = {"jobs": loop.run_until_complete(get_jobs())}
+    if not os.path.exists(output_directory):
+        os.mkdir(output_directory)
 
-    if file is None:
-        print(json.dumps(data, indent=indent))
-    else:
-        with open(file, "w") as f:
-            json.dump(data, f, indent=indent)
+    sock, port = bind_unused_port()
+    app = server.HTCondorStatusApp()
+    http_server = HTTPServer(app)
+    http_server.add_socket(sock)
+    client = AsyncHTTPClient()
+    await app.refresh_jobs_list()
+
+    for filename in ["jobs.json", "counts.json", "summary.json"]:
+        response = await client.fetch(
+            f"http://127.0.0.1:{port}/{filename}",
+            headers={"Accept": "application/json"},
+        )
+        Path(output_directory, filename).write_bytes(response.body)
 
 
 def make_static_parser(subparsers: _SubParsersAction) -> ArgumentParser:
@@ -62,17 +93,15 @@ def make_static_parser(subparsers: _SubParsersAction) -> ArgumentParser:
 
 def write_static_files(*, directory: str) -> None:
     """Write the static files to the given directory."""
-    from pathlib import Path
-    import pkgutil
-
     path = Path(directory)
     path.mkdir(parents=True, exist_ok=True)
+    here = Path(__file__).parent
+    shutil.rmtree(here / "static", ignore_errors=True)
+    subprocess.run(["npm", "run", "build"])
 
-    for resource in ("condor.jpg", "condor.png", "favicon.ico", "index.html"):
-        data = pkgutil.get_data("htcondor_status.static", resource)
-        filepath = path.joinpath(resource)
-        print(f"Writing {filepath}")
-        filepath.write_bytes(data)
+    for filepath in here.joinpath("static").glob("*"):
+        print(f"Copying {filepath} to {directory}")
+        shutil.copy(filepath, directory)
 
 
 def main() -> None:

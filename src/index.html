@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>HTCondor Jobs</title>
+  <link rel="stylesheet" href="./htcondor.css">
+  <link rel="icon" type="image/png" href="./condor.png">
+</head>
+
+<body>
+  <nav class="navbar navbar-dark bg-primary">
+    <div class="container-fluid">
+      <span class="navbar-brand">HTCondor Jobs</span>
+    </div>
+  </nav>
+
+  <!-- Summary -->
+  <div class="container" style="padding-top: 1em;">
+    <div class="row">
+      <div class="col">
+        <div class="alert alert-primary" role="alert">
+          <h3 class="alert-heading">Jobs</h3>
+          <h3 class="alert-heading" id="total-job-count">-</h3>
+        </div>
+      </div>
+      <div class="col">
+        <div class="alert alert-success" role="alert">
+          <h3 class="alert-heading">Running</h3>
+          <h3 class="alert-heading" id="running-job-count">-</h3>
+        </div>
+      </div>
+      <div class="col">
+        <div class="alert alert-warning" role="alert">
+          <h3 class="alert-heading">Idle</h3>
+          <h3 class="alert-heading" id="idle-job-count">-</h3>
+        </div>
+      </div>
+      <div class="col">
+        <div class="alert alert-danger" role="alert">
+          <h3 class="alert-heading">Held</h3>
+          <h3 class="alert-heading" id="held-job-count">-</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Jobs table -->
+  <div class="container-fluid">
+    <table class="table-striped table-hover" id="table-jobs"></table>
+  </div>
+
+  <!-- Modal with job details -->
+  <div
+    class="modal fade"
+    id="details-modal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="detailsModal"
+    aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="details-title">Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="details-body">
+          Details here...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initialize } from "./htcondor.ts";
+
+    initialize();
+  </script>
+
+</body>
+
+</html>
