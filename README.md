@@ -6,24 +6,23 @@ Monitor [HTCondor][] clusters in your browser.
 
 ## Installation
 
-Create a virtual environment and install requirements:
+Create a conda environment:
 
 ```
-python3 -m venv env
-pip install -r requirements.txt
-source env/bin/activate
+conda env install -f environment.yml
+conda activate htcondor-status
 ```
 
 Install NPM dependencies:
 
 ```
-(env) python3 -m nodejs.npm install
+(env) npm install
 ```
 
 Generate the HTML, Javascript, and CSS:
 
 ```
-(env) python3 -m nodejs.npm run build
+(env) npm run build
 ```
 
 ## Usage
@@ -34,16 +33,10 @@ Run as a server:
 python -m htcondor_status serve --port 8500 --debug
 ```
 
-Print all jobs as JSON to `stdout`:
+Write JSON files to be served by Apache, nginx, etc.:
 
 ```
-python -m htcondor_status json --indent 2
-```
-
-or to a file:
-
-```
-python -m htcondor_status json --indent 2 --file out.json
+python -m htcondor_status json /path/to/directory
 ```
 
 Write static files to a directory:

@@ -1,4 +1,0 @@
-nodejs-bin
-pandas
-pytest
-tornado>=6.2

@@ -1,18 +1,16 @@
 from argparse import ArgumentParser, _SubParsersAction
 import asyncio
-import json
 import os
 from pathlib import Path
 import shutil
+import subprocess
 from typing import Optional
-
-from nodejs import npm
 
 from tornado.httpclient import AsyncHTTPClient
 from tornado.httpserver import HTTPServer
 from tornado.testing import bind_unused_port
 
-from htcondor_status import jobs, server
+from htcondor_status import server
 
 
 def make_serve_parser(subparsers: _SubParsersAction) -> ArgumentParser:
@@ -36,7 +34,7 @@ def serve(*, port: int, debug: bool, simulate: bool) -> None:
 
     """
     if debug:
-        npm_run = npm.Popen(["run", "watch"])
+        npm_run = subprocess.Popen(["run", "watch"])
     else:
         npm_run = None
 
@@ -99,7 +97,7 @@ def write_static_files(*, directory: str) -> None:
     path.mkdir(parents=True, exist_ok=True)
     here = Path(__file__).parent
     shutil.rmtree(here / "static", ignore_errors=True)
-    npm.run(["run", "build"])
+    subprocess.run(["npm", "run", "build"])
 
     for filepath in here.joinpath("static").glob("*"):
         print(f"Copying {filepath} to {directory}")

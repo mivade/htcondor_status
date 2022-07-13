@@ -1,0 +1,8 @@
+name: htcondor-status
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - nodejs
+  - pandas
+  - tornado>=6.2
