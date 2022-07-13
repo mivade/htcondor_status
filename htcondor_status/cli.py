@@ -67,7 +67,6 @@ async def generate_json(*, directory: Optional[str]) -> None:
     sock, port = bind_unused_port()
     http_server = HTTPServer(server.HTCondorStatusApp())
     http_server.add_socket(sock)
-    http_server.listen(port)
     client = AsyncHTTPClient()
 
     for filename in ["jobs.json", "counts.json", "summary.json"]:
