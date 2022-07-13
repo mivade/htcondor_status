@@ -53,7 +53,9 @@ def make_json_parser(subparsers: _SubParsersAction) -> ArgumentParser:
     parser.set_defaults(
         command=lambda *args, **kwargs: asyncio.run(generate_json(*args, **kwargs))
     )
-    parser.add_argument("directory", type=str, help="directory to write JSON files to")
+    parser.add_argument(
+        "directory", type=str, default=None, help="directory to write JSON files to"
+    )
     return parser
 
 
@@ -66,7 +68,7 @@ async def generate_json(*, directory: Optional[str]) -> None:
     output_directory = directory or os.getcwd()
 
     if not os.path.exists(output_directory):
-        os.path.mkdir(output_directory)
+        os.mkdir(output_directory)
 
     sock, port = bind_unused_port()
     http_server = HTTPServer(server.HTCondorStatusApp())
