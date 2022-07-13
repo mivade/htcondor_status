@@ -53,10 +53,7 @@ def make_json_parser(subparsers: _SubParsersAction) -> ArgumentParser:
     parser.set_defaults(
         command=lambda *args, **kwargs: asyncio.run(generate_json(*args, **kwargs))
     )
-    parser.add_argument("--indent", "-i", type=int, help="indent spaces")
-    parser.add_argument(
-        "--directory", "-d", type=str, help="directory to write JSON files to"
-    )
+    parser.add_argument("directory", type=str, help="directory to write JSON files to")
     return parser
 
 
