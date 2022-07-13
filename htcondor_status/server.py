@@ -2,7 +2,7 @@ import asyncio
 from datetime import timedelta
 import logging
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 import pandas as pd
 
@@ -10,27 +10,34 @@ from tornado.ioloop import PeriodicCallback
 from tornado.log import enable_pretty_logging
 from tornado.web import Application, RequestHandler, StaticFileHandler
 
-from .jobs import get_jobs, simulate_jobs
+from .jobs import JobList, get_jobs, simulate_jobs
 
 logger = logging.getLogger("__name__")
 
 
-class IndexHandler(RequestHandler):
+class BaseHandler(RequestHandler):
+    @property
+    def jobs(self) -> JobList:
+        """Return the most recent list of jobs."""
+        return self.application.jobs
+
+
+class IndexHandler(BaseHandler):
     def get(self) -> None:
         """Get ``index.html``."""
         self.render("index.html")
 
 
-class JobsHandler(RequestHandler):
+class JobsHandler(BaseHandler):
     def get(self) -> None:
         """Get the most recent list of HTCondor jobs."""
-        self.write({"jobs": self.application.jobs})
+        self.write({"jobs": self.jobs})
 
 
-class JobCountHandler(RequestHandler):
+class JobCountHandler(BaseHandler):
     def get(self) -> None:
         """Get counts of jobs in different states."""
-        jobs = pd.DataFrame(self.application.jobs)
+        jobs = pd.DataFrame(self.jobs)
         self.write(
             {
                 "total": len(jobs),
@@ -85,7 +92,7 @@ class HTCondorStatusApp(Application):
             debug=debug,
         )
         self.simulate = simulate
-        self.jobs: list[dict[str, Any]] = []
+        self.jobs: JobList = []
         self._refresh_timer = PeriodicCallback(
             self.refresh_jobs_list, timedelta(seconds=refresh_interval_seconds)
         )

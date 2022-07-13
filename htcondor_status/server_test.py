@@ -28,3 +28,15 @@ class TestJobsHandler(HandlerTestCase):
         assert response.headers["Content-Type"].startswith("application/json")
         body = json.loads(response.body)
         assert body == {"jobs": []}
+
+
+class TestJobCountHandler(HandlerTestCase):
+    @gen_test
+    async def test_get(self) -> None:
+        jobs = [{"JobStatus": 1}, {"JobStatus": 2}, {"JobStatus": 5}]
+
+        with mock.patch.object(server.JobCountHandler, "jobs", jobs):
+            response = await self.http_client.fetch(self.get_url("/counts.json"))
+
+        body = json.loads(response.body)
+        assert body == {"total": 3, "idle": 1, "running": 1, "held": 1}

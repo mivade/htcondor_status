@@ -5,8 +5,10 @@ import random
 from subprocess import PIPE
 from typing import Any
 
+JobList = list[dict[str, Any]]
 
-async def get_jobs(all: bool = True, global_: bool = True) -> list[dict[str, Any]]:
+
+async def get_jobs(all: bool = True, global_: bool = True) -> JobList:
     """Get a list of jobs using ``condor_q``.
 
     :param all: include the ``-all`` option (default: True)
@@ -30,14 +32,14 @@ async def get_jobs(all: bool = True, global_: bool = True) -> list[dict[str, Any
         return []
 
 
-def _read_sample_data() -> list[dict[str, Any]]:
+def _read_sample_data() -> JobList:
     data = importlib.resources.read_text(
         "htcondor_status", "sample_condor_q_output.json"
     )
     return json.loads(data)
 
 
-def simulate_jobs() -> list[dict[str, Any]]:
+def simulate_jobs() -> JobList:
     """Simulate getting jobs from ``condor_q``."""
     data = _read_sample_data()
     total = len(data)
