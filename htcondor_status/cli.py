@@ -64,6 +64,10 @@ async def generate_json(*, directory: Optional[str]) -> None:
 
     """
     output_directory = directory or os.getcwd()
+
+    if not os.path.exists(output_directory):
+        os.path.mkdir(output_directory)
+
     sock, port = bind_unused_port()
     http_server = HTTPServer(server.HTCondorStatusApp())
     http_server.add_socket(sock)
