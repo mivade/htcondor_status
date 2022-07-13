@@ -1,11 +1,16 @@
 from argparse import ArgumentParser, _SubParsersAction
 import asyncio
 import json
+import os
 from pathlib import Path
-import pkgutil
+import shutil
 from typing import Optional
 
 from nodejs import npm
+
+from tornado.httpclient import AsyncHTTPClient
+from tornado.httpserver import HTTPServer
+from tornado.testing import bind_unused_port
 
 from htcondor_status import jobs, server
 
@@ -45,25 +50,35 @@ def serve(*, port: int, debug: bool, simulate: bool) -> None:
 def make_json_parser(subparsers: _SubParsersAction) -> ArgumentParser:
     """Make the ``json`` subcommand."""
     parser = subparsers.add_parser("json")
-    parser.set_defaults(command=generate_json)
+    parser.set_defaults(
+        command=lambda *args, **kwargs: asyncio.run(generate_json(*args, **kwargs))
+    )
     parser.add_argument("--indent", "-i", type=int, help="indent spaces")
-    parser.add_argument("--file", "-f", type=str, help="where to write the output")
+    parser.add_argument(
+        "--directory", "-d", type=str, help="directory to write JSON files to"
+    )
     return parser
 
 
-def generate_json(*, file: Optional[str], indent: Optional[int]) -> None:
-    """Generate a JSON file with job status.
+async def generate_json(*, directory: Optional[str]) -> None:
+    """Generate JSON files with job status information.
 
-    :param file: where to write the JSON file to (stdout if not None)
+    :param directory: directory to write the JSON files to (default: CWD)
 
     """
-    data = {"jobs": asyncio.run(jobs.get_jobs())}
+    output_directory = directory or os.getcwd()
+    sock, port = bind_unused_port()
+    http_server = HTTPServer(server.HTCondorStatusApp())
+    http_server.add_socket(sock)
+    http_server.listen(port)
+    client = AsyncHTTPClient()
 
-    if file is None:
-        print(json.dumps(data, indent=indent))
-    else:
-        with open(file, "w") as f:
-            json.dump(data, f, indent=indent)
+    for filename in ["jobs.json", "counts.json", "summary.json"]:
+        response = await client.fetch(
+            f"http://127.0.0.1:{port}/{filename}",
+            headers={"Accept": "application/json"},
+        )
+        Path(output_directory, filename).write_bytes(response.body)
 
 
 def make_static_parser(subparsers: _SubParsersAction) -> ArgumentParser:
@@ -78,12 +93,13 @@ def write_static_files(*, directory: str) -> None:
     """Write the static files to the given directory."""
     path = Path(directory)
     path.mkdir(parents=True, exist_ok=True)
+    here = Path(__file__).parent
+    shutil.rmtree(here / "static", ignore_errors=True)
+    npm.run(["run", "build"])
 
-    for resource in ("condor.jpg", "condor.png", "favicon.ico", "index.html"):
-        data = pkgutil.get_data("htcondor_status.static", resource)
-        filepath = path.joinpath(resource)
-        print(f"Writing {filepath}")
-        filepath.write_bytes(data)
+    for filepath in here.joinpath("static").glob("*"):
+        print(f"Copying {filepath} to {directory}")
+        shutil.copy(filepath, directory)
 
 
 def main() -> None:
