@@ -119,7 +119,7 @@ export function initialize() {
       {title: "JobName", field: "JobName"},
       {title: "JobStatus", field: "JobStatus"},
     ],
-    initialSort: [{column: "QDate", dir: "desc"}, {column: "ClusterId", dir: "desc"}],
+    initialSort: [{column: "QDate", dir: "asc"}],
     pagination: true,
     paginationSize: 10,
     paginationSizeSelector: true,
