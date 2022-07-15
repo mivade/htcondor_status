@@ -34,7 +34,7 @@ def serve(*, port: int, debug: bool, simulate: bool) -> None:
 
     """
     if debug:
-        npm_run = subprocess.Popen(["run", "watch"])
+        npm_run = subprocess.Popen(["npm", "run", "watch"])
     else:
         npm_run = None
 

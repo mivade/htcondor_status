@@ -18,7 +18,8 @@ const statusMap = {
  * @returns Formatted timestamp
  */
 export function formatQDate(timestamp: number): string {
-  return DateTime.fromSeconds(timestamp).toISO();
+  const datetime = DateTime.fromSeconds(timestamp);
+  return `${datetime.toISO()} (${datetime.toRelative()})`;
 }
 
 /**
@@ -110,7 +111,8 @@ export function initialize() {
       {title: "JobStatus", field: "JobStatus"},
     ],
     initialSort: [{column: "QDate", dir: "desc"}, {column: "ClusterId", dir: "desc"}],
-    layout: "fitColumns",
+    // layout: "fitColumns",
+    layout: "fitDataStretch",
     layoutColumnsOnNewData: true,
     ajaxURL: "/summary.json",
     ajaxResponse: function (url, params, response) {
