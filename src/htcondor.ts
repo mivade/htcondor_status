@@ -142,8 +142,16 @@ export function initialize() {
   });
 
   table.on("rowClick", function (event, row) {
-    const summary = summaryData[row.getPosition()];
-    showDetails(summary);
+    const globalJobId = row.getData().GlobalJobId;
+
+    for (const summary of summaryData) {
+      if (summary.GlobalJobId == globalJobId) {
+        showDetails(summary);
+        return;
+      }
+    }
+
+    showDetails(null);
   });
 
   // Periodically refresh data
@@ -154,7 +162,12 @@ export function initialize() {
  * @brief Fetch details and show the details modal
  * @param summary Summary for a specific job
  */
-async function showDetails(summary: SummaryData) {
+async function showDetails(summary: SummaryData | null) {
+  if (summary === null) {
+    showModal(null);
+    return;
+  }
+
   const response = await fetch("jobs.json");
   const data = await response.json();
   const jobs = data.jobs;
@@ -169,15 +182,21 @@ async function showDetails(summary: SummaryData) {
   console.error(`Couldn't find job ${summary.GlobalJobId}`);
 }
 
-function showModal(jobDetails) {
-  let lines: Array<string> = [];
+function showModal(jobDetails: any | null) {
+  if (jobDetails !== null) {
+    let lines: Array<string> = [];
 
-  for (const key in jobDetails) {
-    const value = jobDetails[key];
-    lines.push(`<p><strong>${key}:</strong> ${value}</p>`);
+    for (const key in jobDetails) {
+      const value = jobDetails[key];
+      lines.push(`<p><strong>${key}:</strong> ${value}</p>`);
+    }
+
+    setText("details-body", lines.join(""));
+  }
+  else {
+    setText("details-body", "Error finding job details");
   }
 
-  setText("details-body", lines.join(""));
   const modal = new Modal("#details-modal", {keyboard: true});
   modal.show();
 }
