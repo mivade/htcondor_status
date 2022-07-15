@@ -34,7 +34,7 @@ def serve(*, port: int, debug: bool, simulate: bool) -> None:
 
     """
     if debug:
-        npm_run = subprocess.Popen(["run", "watch"])
+        npm_run = subprocess.Popen(["npm", "run", "watch"])
     else:
         npm_run = None
 
@@ -96,8 +96,10 @@ def write_static_files(*, directory: str) -> None:
     path = Path(directory)
     path.mkdir(parents=True, exist_ok=True)
     here = Path(__file__).parent
+    static = here / "static"
     shutil.rmtree(here / "static", ignore_errors=True)
-    subprocess.run(["npm", "run", "build"])
+    static.mkdir()
+    subprocess.run(["npm", "run", "build"], check=True)
 
     for filepath in here.joinpath("static").glob("*"):
         print(f"Copying {filepath} to {directory}")

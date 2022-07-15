@@ -1,7 +1,7 @@
 import { formatQDate, formatJobStatusString } from "./htcondor";
 
 test("formatQDate converts seconds to ISO timestamp", () => {
-  expect(formatQDate(1234)).toBe("1969-12-31T17:20:34.000-07:00");
+  expect(formatQDate(1234)).toMatch(/1969-12-31T17:20:34.000-07:00 (.* ago)/);
 });
 
 describe("formatJobStatusString", () => {

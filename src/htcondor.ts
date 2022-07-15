@@ -1,5 +1,12 @@
 import { DateTime } from "luxon";
-import { Tabulator, AjaxModule, SortModule, InteractionModule } from "tabulator-tables";
+import {
+  Tabulator,
+  AjaxModule,
+  SortModule,
+  InteractionModule,
+  ResizeColumnsModule,
+  PageModule,
+} from "tabulator-tables";
 import { Modal } from "bootstrap";
 
 const statusMap = {
@@ -18,7 +25,8 @@ const statusMap = {
  * @returns Formatted timestamp
  */
 export function formatQDate(timestamp: number): string {
-  return DateTime.fromSeconds(timestamp).toISO();
+  const datetime = DateTime.fromSeconds(timestamp);
+  return `${datetime.toISO()} (${datetime.toRelative()})`;
 }
 
 /**
@@ -96,7 +104,9 @@ let summaryData: Array<SummaryData> = [];
  * @brief Start polling for updates
  */
 export function initialize() {
-  for (const module of [AjaxModule, SortModule, InteractionModule]) {
+  for (const module of [
+    AjaxModule, SortModule, InteractionModule, ResizeColumnsModule, PageModule
+  ]) {
     Tabulator.registerModule(module);
   }
 
@@ -109,10 +119,13 @@ export function initialize() {
       {title: "JobName", field: "JobName"},
       {title: "JobStatus", field: "JobStatus"},
     ],
-    initialSort: [{column: "QDate", dir: "desc"}, {column: "ClusterId", dir: "desc"}],
-    layout: "fitColumns",
+    initialSort: [{column: "QDate", dir: "asc"}],
+    pagination: true,
+    paginationSize: 10,
+    paginationSizeSelector: true,
+    layout: "fitDataStretch",
     layoutColumnsOnNewData: true,
-    ajaxURL: "/summary.json",
+    ajaxURL: "summary.json",
     ajaxResponse: function (url, params, response) {
       let data = response.jobs;
       summaryData = data;
@@ -134,7 +147,7 @@ export function initialize() {
   });
 
   // Periodically refresh data
-  window.setInterval(() => table.setData("/summary.json"), 10000);
+  window.setInterval(() => table.setData("summary.json"), 30000);
 }
 
 /**
@@ -142,7 +155,7 @@ export function initialize() {
  * @param summary Summary for a specific job
  */
 async function showDetails(summary: SummaryData) {
-  const response = await fetch("/jobs.json");
+  const response = await fetch("jobs.json");
   const data = await response.json();
   const jobs = data.jobs;
 
