@@ -147,7 +147,7 @@ export function initialize() {
   });
 
   // Periodically refresh data
-  window.setInterval(() => table.setData("summary.json"), 10000);
+  window.setInterval(() => table.setData("summary.json"), 30000);
 }
 
 /**
