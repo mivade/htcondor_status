@@ -5,6 +5,7 @@ import {
   SortModule,
   InteractionModule,
   ResizeColumnsModule,
+  PageModule,
 } from "tabulator-tables";
 import { Modal } from "bootstrap";
 
@@ -103,7 +104,9 @@ let summaryData: Array<SummaryData> = [];
  * @brief Start polling for updates
  */
 export function initialize() {
-  for (const module of [AjaxModule, SortModule, InteractionModule, ResizeColumnsModule]) {
+  for (const module of [
+    AjaxModule, SortModule, InteractionModule, ResizeColumnsModule, PageModule
+  ]) {
     Tabulator.registerModule(module);
   }
 
@@ -117,7 +120,9 @@ export function initialize() {
       {title: "JobStatus", field: "JobStatus"},
     ],
     initialSort: [{column: "QDate", dir: "desc"}, {column: "ClusterId", dir: "desc"}],
-    // layout: "fitColumns",
+    pagination: true,
+    paginationSize: 10,
+    paginationSizeSelector: true,
     layout: "fitDataStretch",
     layoutColumnsOnNewData: true,
     ajaxURL: "/summary.json",
