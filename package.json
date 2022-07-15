@@ -4,7 +4,7 @@
   "scripts": {
     "test": "jest",
     "watch": "PARCEL_WORKER_BACKEND=process parcel src/index.html",
-    "build": "PARCEL_WORKER_BACKEND=process parcel build --dist-dir=htcondor_status/static src/index.html"
+    "build": "PARCEL_WORKER_BACKEND=process parcel build --dist-dir=htcondor_status/static --public-url='.' src/index.html"
   },
   "author": "Michael V. DePalatis",
   "license": "MIT",

@@ -125,7 +125,7 @@ export function initialize() {
     paginationSizeSelector: true,
     layout: "fitDataStretch",
     layoutColumnsOnNewData: true,
-    ajaxURL: "/summary.json",
+    ajaxURL: "summary.json",
     ajaxResponse: function (url, params, response) {
       let data = response.jobs;
       summaryData = data;
@@ -147,7 +147,7 @@ export function initialize() {
   });
 
   // Periodically refresh data
-  window.setInterval(() => table.setData("/summary.json"), 10000);
+  window.setInterval(() => table.setData("summary.json"), 10000);
 }
 
 /**
@@ -155,7 +155,7 @@ export function initialize() {
  * @param summary Summary for a specific job
  */
 async function showDetails(summary: SummaryData) {
-  const response = await fetch("/jobs.json");
+  const response = await fetch("jobs.json");
   const data = await response.json();
   const jobs = data.jobs;
 
