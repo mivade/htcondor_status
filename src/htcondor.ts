@@ -1,5 +1,11 @@
 import { DateTime } from "luxon";
-import { Tabulator, AjaxModule, SortModule, InteractionModule } from "tabulator-tables";
+import {
+  Tabulator,
+  AjaxModule,
+  SortModule,
+  InteractionModule,
+  ResizeColumnsModule,
+} from "tabulator-tables";
 import { Modal } from "bootstrap";
 
 const statusMap = {
@@ -97,7 +103,7 @@ let summaryData: Array<SummaryData> = [];
  * @brief Start polling for updates
  */
 export function initialize() {
-  for (const module of [AjaxModule, SortModule, InteractionModule]) {
+  for (const module of [AjaxModule, SortModule, InteractionModule, ResizeColumnsModule]) {
     Tabulator.registerModule(module);
   }
 
