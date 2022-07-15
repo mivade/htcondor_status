@@ -96,8 +96,10 @@ def write_static_files(*, directory: str) -> None:
     path = Path(directory)
     path.mkdir(parents=True, exist_ok=True)
     here = Path(__file__).parent
+    static = here / "static"
     shutil.rmtree(here / "static", ignore_errors=True)
-    subprocess.run(["npm", "run", "build"])
+    static.mkdir()
+    subprocess.run(["npm", "run", "build"], check=True)
 
     for filepath in here.joinpath("static").glob("*"):
         print(f"Copying {filepath} to {directory}")
