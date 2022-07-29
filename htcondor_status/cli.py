@@ -79,6 +79,7 @@ async def generate_json(*, directory: Optional[str]) -> None:
         response = await client.fetch(
             f"http://127.0.0.1:{port}/{filename}",
             headers={"Accept": "application/json"},
+            request_timeout=0,
         )
         Path(output_directory, filename).write_bytes(response.body)
 
